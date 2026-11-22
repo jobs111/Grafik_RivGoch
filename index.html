@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#F3F5F8">
+<title>График на декабрь — выбери свои дни</title>
+<style>
+:root{
+  --bg:#F3F5F8;--card:#FFFFFF;--ink:#17202B;--mute:#5E6B7A;--line:#D7DEE7;
+  --acc:#1E5BD0;--acc-ink:#FFFFFF;
+  --a-bg:#D8F1E4;--a-fg:#0D5E37;
+  --f-bg:#FFF0C4;--f-fg:#6C4E00;
+  --s-bg:#E5E0FA;--s-fg:#41329A;
+  --c-bg:#D8E9FA;--c-fg:#0E4A87;
+  --m-bg:#FFE3CE;--m-fg:#874210;
+  --n-bg:#F4DCDC;--n-fg:#8A2A2A;
+  --ok:#0D5E37;--err:#9B2222;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0F151D;--card:#18212C;--ink:#E7EDF4;--mute:#9AA7B6;--line:#2B3644;
+    --acc:#6FA3FF;--acc-ink:#0B1220;
+    --a-bg:#123A29;--a-fg:#8BE3B6;
+    --f-bg:#473810;--f-fg:#F2D27C;
+    --s-bg:#2D2955;--s-fg:#C4BBFF;
+    --c-bg:#16324F;--c-fg:#A6CDFF;
+    --m-bg:#482B14;--m-fg:#FFBF92;
+    --n-bg:#481F1F;--n-fg:#FFA5A5;
+    --ok:#8BE3B6;--err:#FFA5A5;
+  }
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+body.lock{overflow:hidden}
+main{max-width:560px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top,0px)) 14px calc(36px + env(safe-area-inset-bottom,0px))}
+h1{font-size:25px;line-height:1.2;margin:6px 0 8px}
+.lead{color:var(--mute);margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+h2{font-size:17px;margin:0 0 10px}
+summary{font-size:17px;font-weight:700;cursor:pointer;list-style:none;display:flex;align-items:center}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"";flex:none;margin-left:10px;width:8px;height:8px;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:rotate(45deg);transition:transform .2s}
+details[open] summary::after{transform:rotate(-135deg)}
+details[open] summary{margin-bottom:4px}
+.step{display:inline-block;min-width:24px;height:24px;line-height:24px;text-align:center;border-radius:12px;background:var(--acc);color:var(--acc-ink);font-size:14px;font-weight:700;margin-right:8px}
+label.f{display:block;font-weight:600;margin:14px 0 6px}
+input[type=text],select,textarea{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;-webkit-appearance:none;appearance:none}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--mute) 50%),linear-gradient(135deg,var(--mute) 50%,transparent 50%);background-position:calc(100% - 18px) 52%,calc(100% - 13px) 52%;background-size:5px 5px;background-repeat:no-repeat;padding-right:34px}
+textarea{min-height:84px;resize:vertical}
+.chk{display:flex;gap:10px;align-items:flex-start;margin-top:16px;cursor:pointer}
+.chk input{margin-top:3px;width:20px;height:20px;flex:none}
+.prog{display:flex;justify-content:space-between;font-size:15px;color:var(--mute)}
+.bar{height:8px;border-radius:8px;background:var(--line);overflow:hidden;margin:6px 0 14px}
+.bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .25s}
+.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.dh{text-align:center;font-size:12px;color:var(--mute);padding-bottom:2px}
+.dh.we{color:var(--n-fg)}
+.day{min-height:56px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;padding:4px 1px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;touch-action:manipulation}
+.day b{font-size:15px}
+.day span{font-size:13px;line-height:1.1;text-align:center;max-width:100%;overflow:hidden}
+.day span.t{font-size:10px}
+.s-A{background:var(--a-bg);color:var(--a-fg);border-color:transparent}
+.s-F{background:var(--f-bg);color:var(--f-fg);border-color:transparent}
+.s-S{background:var(--s-bg);color:var(--s-fg);border-color:transparent}
+.s-C{background:var(--c-bg);color:var(--c-fg);border-color:transparent}
+.s-M{background:var(--m-bg);color:var(--m-fg);border-color:transparent}
+.s-N{background:var(--n-bg);color:var(--n-fg);border-color:transparent}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:13px;color:var(--mute);margin:14px 0 2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.row .btn{flex:1 1 140px}
+.btn{font:inherit;font-size:15px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:11px 12px;cursor:pointer;touch-action:manipulation}
+.btn.pri{display:block;width:100%;background:var(--acc);color:var(--acc-ink);border-color:transparent;font-weight:700;font-size:17px;padding:15px;border-radius:12px}
+.btn.sec{display:block;width:100%;font-weight:600;padding:14px;border-radius:12px;margin-top:8px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.hint{font-size:14px;color:var(--mute);margin:8px 0 0;min-height:20px}
+.msg{font-size:15px;margin:10px 0 0;min-height:22px}
+.msg.ok{color:var(--ok)}.msg.err{color:var(--err)}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+#back{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:10}
+#sheet{position:fixed;left:0;right:0;bottom:0;z-index:11;background:var(--card);border-radius:18px 18px 0 0;padding:16px 14px calc(14px + env(safe-area-inset-bottom,0px));max-width:560px;margin:0 auto;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#sheet h3{margin:0 0 12px;font-size:18px}
+#opts{display:grid;gap:8px}
+#opts .btn{text-align:left;padding:13px 14px;font-size:16px}
+#opts .btn.cur{outline:2px solid var(--acc);outline-offset:-2px}
+#cbox{margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#cbox label{display:block;font-weight:600;font-size:14px;margin-bottom:4px}
+#cbox .full{grid-column:1/-1}
+#serr{color:var(--err);font-size:14px;min-height:18px;margin:8px 0 4px}
+#out{min-height:220px;font:13px/1.4 ui-monospace,Menlo,Consolas,monospace}
+.done{text-align:center;padding:8px 0 4px}
+.done .big{font-size:42px;line-height:1}
+</style>
+</head>
+<body>
+<main>
+<h1>Декабрь: когда тебе удобно выйти?</h1>
+<p class="lead">Рив Гош в ТРК «Лотос Плаза». Работаем каждый день с 12:00 до 20:00, смены можно делить на части и меняться. Отметь свои дни — соберём график, удобный всем. Спасибо, что помогаешь!</p>
+
+<section class="card">
+<h2><span class="step">1</span>Как тебя зовут?</h2>
+<input type="text" id="name" placeholder="Имя и фамилия" autocomplete="name" maxlength="60" enterkeyhint="done">
+</section>
+
+<section class="card">
+<h2><span class="step">2</span>Отметь все 31 день</h2>
+<div class="prog"><span>Выбрано: <b id="cnt">0</b> из 31</span><span id="left"></span></div>
+<div class="bar"><i id="bar"></i></div>
+<div class="grid" id="grid"></div>
+<div class="legend">
+<span>✅ весь день 12–20</span><span>🌅 12–16</span>
+<span>🌆 16–20</span><span>⏱ свои часы</span>
+<span>🤝 если очень нужно</span><span>❌ не могу</span>
+</div>
+<p class="hint">Нажми на день и выбери вариант. Чтобы быстрее: заполни пустые дни одним нажатием, а потом поправь исключения.</p>
+<div class="row">
+<button type="button" class="btn" id="fillA">Пустые → ✅ весь день</button>
+<button type="button" class="btn" id="fillN">Пустые → ❌ не могу</button>
+</div>
+</section>
+
+<details class="card" id="wish">
+<summary><span class="step">3</span><span style="flex:1;min-width:0">Пожелания <span style="font-weight:400;color:var(--mute)">(можно пропустить)</span></span></summary>
+<label class="f" for="o_hours">Сколько часов за декабрь хочется?</label>
+<select id="o_hours"><option value="">Не выбрано</option><option>Как получится</option><option>До 40 часов</option><option>40–60 часов</option><option>60–80 часов</option><option>Больше 80 часов</option></select>
+<label class="f" for="o_min">Самая короткая смена, которая подходит</label>
+<select id="o_min"><option value="">Не выбрано</option><option>Любая, от 3 часов</option><option>Не меньше 4 часов</option><option>Только целый день</option></select>
+<label class="f" for="o_row">Сколько дней подряд комфортно?</label>
+<select id="o_row"><option value="">Не выбрано</option><option>2 дня</option><option>3 дня</option><option>4 дня</option><option>5 дней</option><option>Без разницы</option></select>
+<label class="chk"><input type="checkbox" id="o_res"><span>Могу быть в запасе — выручу, если кто-то заболеет</span></label>
+<label class="f" for="o_note">Что ещё важно учесть?</label>
+<textarea id="o_note" maxlength="500" placeholder="Например: 12 декабря экзамен, могу только после 15:00"></textarea>
+</details>
+
+<button type="button" class="btn pri" id="send" disabled>Отправить</button>
+<p class="hint" id="hint"></p>
+
+<section class="card" id="ok" hidden style="margin-top:14px">
+<div class="done"><div class="big">🎉</div><h2 style="margin-top:10px">Готово, ответ отправлен!</h2>
+<p class="lead" style="margin:0">Спасибо! Если планы поменяются — открой эту страницу снова, поправь дни и нажми «Отправить» ещё раз. Учтём последний ответ.</p></div>
+</section>
+
+<section class="card" id="manual" hidden style="margin-top:14px">
+<h2 id="manualTitle">Отправь ответ организатору</h2>
+<p class="lead" id="manualLead" style="margin-bottom:10px">Нажми «Скопировать» и отправь текст в личные сообщения в Telegram.</p>
+<textarea id="out" readonly></textarea>
+<button type="button" class="btn pri" id="copy" style="margin-top:10px">Скопировать текст</button>
+<button type="button" class="btn sec" id="tg">Открыть Telegram и поделиться</button>
+<p class="msg" id="cmsg" role="status"></p>
+</section>
+</main>
+
+<div id="back" hidden></div>
+<div id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="stitle">
+<h3 id="stitle"></h3>
+<div id="opts">
+<button type="button" class="btn" data-s="A">✅ Весь день, 12:00–20:00</button>
+<button type="button" class="btn" data-s="F">🌅 Первая половина, 12:00–16:00</button>
+<button type="button" class="btn" data-s="S">🌆 Вторая половина, 16:00–20:00</button>
+<button type="button" class="btn" data-s="C">⏱ Свои часы…</button>
+<button type="button" class="btn" data-s="M">🤝 Могу, если очень нужно</button>
+<button type="button" class="btn" data-s="N">❌ Не могу</button>
+</div>
+<div id="cbox" hidden>
+<div><label for="tf">С</label><select id="tf"></select></div>
+<div><label for="tt">До</label><select id="tt"></select></div>
+<div class="full"><button type="button" class="btn pri" id="csave">Сохранить часы</button></div>
+</div>
+<p id="serr" role="alert"></p>
+<div class="row" style="margin-top:4px">
+<button type="button" class="btn" id="clear">Сбросить день</button>
+<button type="button" class="btn" id="close">Закрыть</button>
+</div>
+</div>
+
+<script>
+/* Адрес приёма ответов (Google Apps Script). Пусто — ответы отправляются вручную через Telegram. */
+var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxORMQAd6Msa96c_iDOQlHFcm0rr7PaqGua10cEje_h0G4So2Z3RYRHGOrOGFqlXS5EBw/exec";
+
+(function () {
+  "use strict";
+  var DOW = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+  var DOWF = ["воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"];
+  var KEY = "grafik-dec26-v2";
+  var EMO = { A: "✅", F: "🌅", S: "🌆", C: "⏱", M: "🤝", N: "❌" };
+  var DEF = { hours: "", min: "", row: "", reserve: false, note: "" };
+  var st = { name: "", days: [], opt: copy(DEF) };
+  var cur = 0, sending = false, d;
+  for (d = 0; d <= 31; d++) st.days.push(null);
+
+  function copy(o) { var r = {}, k; for (k in o) if (o.hasOwnProperty(k)) r[k] = o[k]; return r; }
+  function $(id) { return document.getElementById(id); }
+  function dowIdx(day) { return (new Date(2026, 11, day).getDay() + 6) % 7; }
+  function short(t) { return t.slice(-3) === ":00" ? t.slice(0, -3) : t; }
+  function valid(v) {
+    if (!v || typeof v !== "object" || "AFSCMN".indexOf(v.s) < 0 || v.s.length !== 1) return false;
+    if (v.s === "C") return typeof v.f === "string" && typeof v.t === "string" && v.t > v.f;
+    return true;
+  }
+
+  function load() {
+    try {
+      var raw = window.localStorage.getItem(KEY); if (!raw) return;
+      var o = JSON.parse(raw); if (!o) return;
+      if (typeof o.name === "string") st.name = o.name;
+      if (o.days && o.days.length === 32) for (d = 1; d <= 31; d++) st.days[d] = valid(o.days[d]) ? o.days[d] : null;
+      if (o.opt) { st.opt = copy(DEF); for (var k in DEF) if (o.opt.hasOwnProperty(k)) st.opt[k] = o.opt[k]; }
+    } catch (e) {}
+  }
+  function save() { try { window.localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} }
+
+  function describe(v) {
+    switch (v.s) {
+      case "A": return "весь день (12–20)";
+      case "F": return "первая половина (12–16)";
+      case "S": return "вторая половина (16–20)";
+      case "C": return "свои часы (" + v.f + "–" + v.t + ")";
+      case "M": return "если очень нужно";
+      default: return "не могу";
+    }
+  }
+  function code(v) {
+    switch (v.s) {
+      case "A": return "12-20";
+      case "F": return "12-16";
+      case "S": return "16-20";
+      case "C": return v.f + "-" + v.t;
+      case "M": return "если нужно";
+      default: return "нет";
+    }
+  }
+  function filled() { var c = 0; for (d = 1; d <= 31; d++) if (st.days[d]) c++; return c; }
+
+  function progress() {
+    var c = filled(), nameOk = st.name.replace(/\s+/g, " ").trim().length >= 2, ok = nameOk && c === 31;
+    $("cnt").textContent = c;
+    $("left").textContent = c === 31 ? "все дни ✓" : "осталось " + (31 - c);
+    $("bar").style.width = (c / 31 * 100) + "%";
+    $("send").disabled = !ok || sending;
+    $("hint").textContent = ok ? "Всё готово — можно отправлять." :
+      (!nameOk ? "Впиши имя и фамилию (шаг 1)." : "Отметь ещё дней: " + (31 - c) + " (шаг 2).");
+  }
+
+  function render() {
+    var g = $("grid"), k;
+    while (g.firstChild) g.removeChild(g.firstChild);
+    for (k = 0; k < 7; k++) {
+      var h = document.createElement("div");
+      h.className = "dh" + (k > 4 ? " we" : ""); h.textContent = DOW[k]; g.appendChild(h);
+    }
+    for (k = 0; k < dowIdx(1); k++) g.appendChild(document.createElement("div"));
+    for (d = 1; d <= 31; d++) g.appendChild(cell(d));
+    progress();
+  }
+  function cell(day) {
+    var v = st.days[day], b = document.createElement("button"), n = document.createElement("b"), m = document.createElement("span");
+    b.type = "button"; b.className = "day" + (v ? " s-" + v.s : "");
+    n.textContent = day;
+    if (v && v.s === "C") { m.className = "t"; m.textContent = short(v.f) + "–" + short(v.t); }
+    else m.textContent = v ? EMO[v.s] : "";
+    b.appendChild(n); b.appendChild(m);
+    b.setAttribute("aria-label", day + " декабря: " + (v ? describe(v) : "не выбрано"));
+    b.addEventListener("click", function () { openSheet(day); });
+    return b;
+  }
+
+  function openSheet(day) {
+    cur = day;
+    var v = st.days[day], bs = $("opts").querySelectorAll("button"), i;
+    $("stitle").textContent = day + " декабря, " + DOWF[new Date(2026, 11, day).getDay()];
+    for (i = 0; i < bs.length; i++) bs[i].className = "btn" + (v && v.s === bs[i].getAttribute("data-s") ? " cur" : "");
+    $("cbox").hidden = !(v && v.s === "C");
+    if (v && v.s === "C") { $("tf").value = v.f; $("tt").value = v.t; } else { $("tf").value = "12:00"; $("tt").value = "16:00"; }
+    $("serr").textContent = "";
+    $("sheet").hidden = false; $("back").hidden = false; document.body.className = "lock";
+  }
+  function closeSheet() { $("sheet").hidden = true; $("back").hidden = true; document.body.className = ""; }
+  function setDay(v) { st.days[cur] = v; save(); closeSheet(); render(); hideResults(); }
+  function fillEmpty(s) { for (d = 1; d <= 31; d++) if (!st.days[d]) st.days[d] = { s: s }; save(); render(); hideResults(); }
+  function hideResults() { $("ok").hidden = true; $("manual").hidden = true; }
+
+  function readOpt() {
+    st.opt = { hours: $("o_hours").value, min: $("o_min").value, row: $("o_row").value, reserve: $("o_res").checked, note: $("o_note").value };
+    save(); hideResults();
+  }
+
+  function cleanName() { return st.name.replace(/\s+/g, " ").trim(); }
+  function payload() {
+    var days = {};
+    for (d = 1; d <= 31; d++) days[d] = code(st.days[d]);
+    return { name: cleanName(), hours: st.opt.hours, min: st.opt.min, row: st.opt.row, reserve: !!st.opt.reserve, note: (st.opt.note || "").trim(), days: days };
+  }
+  function textReport() {
+    var L = [], c = { A: 0, P: 0, M: 0, N: 0 }, v;
+    L.push("График на декабрь — " + cleanName());
+    L.push("Часов за месяц: " + (st.opt.hours || "не указано"));
+    L.push("Мин. смена: " + (st.opt.min || "не указано"));
+    L.push("Дней подряд: " + (st.opt.row || "не указано"));
+    L.push("В запасе: " + (st.opt.reserve ? "да" : "нет"));
+    if ((st.opt.note || "").trim()) L.push("Комментарий: " + st.opt.note.trim());
+    L.push("");
+    for (d = 1; d <= 31; d++) {
+      v = st.days[d];
+      L.push((d < 10 ? "0" : "") + d + ".12 " + DOW[dowIdx(d)] + " — " + describe(v));
+      if (v.s === "A") c.A++; else if (v.s === "N") c.N++; else if (v.s === "M") c.M++; else c.P++;
+    }
+    L.push("");
+    L.push("Итого: весь день " + c.A + ", часть дня " + c.P + ", если нужно " + c.M + ", не могу " + c.N);
+    return L.join("\n");
+  }
+
+  function showManual(failed) {
+    $("out").value = textReport();
+    $("manualTitle").textContent = failed ? "Не получилось отправить автоматически" : "Отправь ответ организатору";
+    $("manualLead").textContent = failed ?
+      "Ничего страшного: нажми «Скопировать» и отправь текст организатору в Telegram." :
+      "Нажми «Скопировать» и отправь текст организатору в личные сообщения в Telegram.";
+    $("cmsg").textContent = ""; $("cmsg").className = "msg";
+    $("manual").hidden = false;
+    scrollTo($("manual"));
+  }
+  function scrollTo(el) { try { el.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) { el.scrollIntoView(true); } }
+
+  function send() {
+    if ($("send").disabled) return;
+    hideResults();
+    if (!SCRIPT_URL) { showManual(false); return; }
+    sending = true; progress(); $("send").textContent = "Отправляю…";
+    var done = false;
+    var timer = setTimeout(function () { finish(false); }, 20000);
+    function finish(ok) {
+      if (done) return; done = true; clearTimeout(timer);
+      sending = false; $("send").textContent = "Отправить ещё раз"; progress();
+      if (ok) { $("ok").hidden = false; scrollTo($("ok")); } else showManual(true);
+    }
+    try {
+      fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload()), redirect: "follow" })
+        .then(function (r) { return r.text(); })
+        .then(function (t) { var j = null; try { j = JSON.parse(t); } catch (e) {} finish(!!(j && j.ok)); })
+        ["catch"](function () { finish(false); });
+    } catch (e) { finish(false); }
+  }
+
+  function copyText() {
+    var ta = $("out"), msg = $("cmsg");
+    function ok() { msg.className = "msg ok"; msg.textContent = "Скопировано! Теперь вставь текст в личку организатору в Telegram."; }
+    function manual() { msg.className = "msg"; msg.textContent = "Текст выделен — нажми «Скопировать» в меню и отправь организатору."; }
+    function legacy() {
+      try {
+        ta.removeAttribute("readonly"); ta.focus(); ta.select(); ta.setSelectionRange(0, ta.value.length);
+        var r = document.execCommand("copy"); ta.setAttribute("readonly", ""); ta.blur();
+        if (r) ok(); else { ta.focus(); ta.setSelectionRange(0, ta.value.length); manual(); }
+      } catch (e) { manual(); }
+    }
+    try {
+      if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(ta.value).then(ok, legacy);
+      else legacy();
+    } catch (e) { legacy(); }
+  }
+  function shareTg() {
+    var text = $("out").value || textReport();
+    window.location.href = "https://t.me/share/url?url=" + encodeURIComponent("График на декабрь") + "&text=" + encodeURIComponent("\n" + text);
+  }
+
+  /* время для «своих часов»: 12:00 … 20:00 с шагом 30 минут */
+  var times = [], h, sel = ["tf", "tt"], i;
+  for (h = 12; h <= 20; h++) { times.push((h < 10 ? "0" : "") + h + ":00"); if (h < 20) times.push(h + ":30"); }
+  for (i = 0; i < sel.length; i++) for (h = 0; h < times.length; h++) {
+    var o = document.createElement("option"); o.value = times[h]; o.textContent = times[h]; $(sel[i]).appendChild(o);
+  }
+
+  $("opts").addEventListener("click", function (e) {
+    var t = e.target; while (t && t !== this && !(t.getAttribute && t.getAttribute("data-s"))) t = t.parentNode;
+    if (!t || t === this) return;
+    var s = t.getAttribute("data-s");
+    if (s === "C") { $("cbox").hidden = false; $("serr").textContent = ""; return; }
+    setDay({ s: s });
+  });
+  $("csave").addEventListener("click", function () {
+    var f = $("tf").value, t = $("tt").value;
+    if (t <= f) { $("serr").textContent = "Время «до» должно быть позже, чем «с»."; return; }
+    setDay({ s: "C", f: f, t: t });
+  });
+  $("clear").addEventListener("click", function () { setDay(null); });
+  $("close").addEventListener("click", closeSheet);
+  $("back").addEventListener("click", closeSheet);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("sheet").hidden) closeSheet(); });
+  $("fillA").addEventListener("click", function () { fillEmpty("A"); });
+  $("fillN").addEventListener("click", function () { fillEmpty("N"); });
+  $("name").addEventListener("input", function () { st.name = $("name").value; save(); progress(); hideResults(); });
+  ["o_hours", "o_min", "o_row", "o_res", "o_note"].forEach(function (id) {
+    $(id).addEventListener("change", readOpt); $(id).addEventListener("input", readOpt);
+  });
+  $("send").addEventListener("click", send);
+  $("copy").addEventListener("click", copyText);
+  $("tg").addEventListener("click", shareTg);
+
+  load();
+  $("name").value = st.name;
+  $("o_hours").value = st.opt.hours; $("o_min").value = st.opt.min; $("o_row").value = st.opt.row;
+  $("o_res").checked = !!st.opt.reserve; $("o_note").value = st.opt.note || "";
+  if (st.opt.hours || st.opt.min || st.opt.row || st.opt.reserve || st.opt.note) $("wish").open = true;
+  if (SCRIPT_URL) $("send").textContent = "Отправить"; else $("send").textContent = "Готово — получить текст ответа";
+  render();
+})();
+</script>
+</body>
+</html>
