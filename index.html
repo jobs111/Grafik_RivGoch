@@ -133,10 +133,11 @@ textarea{min-height:84px;resize:vertical}
 <select id="o_row"><option value="">Не выбрано</option><option>2 дня</option><option>3 дня</option><option>4 дня</option><option>5 дней</option><option>Без разницы</option></select>
 <label class="chk"><input type="checkbox" id="o_res"><span>Могу быть в запасе — выручу, если кто-то заболеет</span></label>
 <label class="f" for="o_note">Что ещё важно учесть?</label>
-<textarea id="o_note" maxlength="500" placeholder="Например: 12 декабря экзамен, могу только после 15:00"></textarea>
+<textarea id="o_note" maxlength="300" placeholder="Например: 12 декабря экзамен, могу только после 15:00"></textarea>
 </details>
 
 <button type="button" class="btn pri" id="send" disabled>Отправить</button>
+<button type="button" class="btn sec" id="tgMain" disabled>✈️ Отправить в Telegram</button>
 <p class="hint" id="hint"></p>
 
 <section class="card" id="ok" hidden style="margin-top:14px">
@@ -146,10 +147,10 @@ textarea{min-height:84px;resize:vertical}
 
 <section class="card" id="manual" hidden style="margin-top:14px">
 <h2 id="manualTitle">Отправь ответ организатору</h2>
-<p class="lead" id="manualLead" style="margin-bottom:10px">Нажми «Скопировать» и отправь текст в личные сообщения в Telegram.</p>
+<p class="lead" id="manualLead" style="margin-bottom:10px"></p>
 <textarea id="out" readonly></textarea>
-<button type="button" class="btn pri" id="copy" style="margin-top:10px">Скопировать текст</button>
-<button type="button" class="btn sec" id="tg">Открыть Telegram и поделиться</button>
+<button type="button" class="btn pri" id="tg" style="margin-top:10px">✈️ Скопировать и открыть Telegram</button>
+<button type="button" class="btn sec" id="copy">Только скопировать текст</button>
 <p class="msg" id="cmsg" role="status"></p>
 </section>
 </main>
@@ -186,6 +187,7 @@ var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxORMQAd6Msa96c_iDOQlH
   var DOW = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
   var DOWF = ["воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"];
   var KEY = "grafik-dec26-v2";
+  var TG = "https://t.me/BroniDan";
   var EMO = { A: "✅", F: "🌅", S: "🌆", C: "⏱", M: "🤝", N: "❌" };
   var DEF = { hours: "", min: "", row: "", reserve: false, note: "" };
   var st = { name: "", days: [], opt: copy(DEF) };
@@ -241,6 +243,7 @@ var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxORMQAd6Msa96c_iDOQlH
     $("left").textContent = c === 31 ? "все дни ✓" : "осталось " + (31 - c);
     $("bar").style.width = (c / 31 * 100) + "%";
     $("send").disabled = !ok || sending;
+    $("tgMain").disabled = !ok || sending;
     $("hint").textContent = ok ? "Всё готово — можно отправлять." :
       (!nameOk ? "Впиши имя и фамилию (шаг 1)." : "Отметь ещё дней: " + (31 - c) + " (шаг 2).");
   }
@@ -315,10 +318,9 @@ var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxORMQAd6Msa96c_iDOQlH
 
   function showManual(failed) {
     $("out").value = textReport();
-    $("manualTitle").textContent = failed ? "Не получилось отправить автоматически" : "Отправь ответ организатору";
-    $("manualLead").textContent = failed ?
-      "Ничего страшного: нажми «Скопировать» и отправь текст организатору в Telegram." :
-      "Нажми «Скопировать» и отправь текст организатору в личные сообщения в Telegram.";
+    $("manualTitle").textContent = failed ? "Отправь через Telegram" : "Отправка через Telegram";
+    $("manualLead").textContent = (failed ? "Автоматически не отправилось — ничего страшного. " : "") +
+      "Нажми кнопку: текст скопируется и откроется чат с организатором. Там нажми на поле сообщения → «Вставить» → отправь.";
     $("cmsg").textContent = ""; $("cmsg").className = "msg";
     $("manual").hidden = false;
     scrollTo($("manual"));
@@ -337,18 +339,43 @@ var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxORMQAd6Msa96c_iDOQlH
       sending = false; $("send").textContent = "Отправить ещё раз"; progress();
       if (ok) { $("ok").hidden = false; scrollTo($("ok")); } else showManual(true);
     }
-    try {
-      fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload()), redirect: "follow" })
-        .then(function (r) { return r.text(); })
-        .then(function (t) { var j = null; try { j = JSON.parse(t); } catch (e) {} finish(!!(j && j.ok)); })
-        ["catch"](function () { finish(false); });
-    } catch (e) { finish(false); }
+    var body = JSON.stringify(payload());
+    jsonp(body, function (ok) {
+      if (ok) { finish(true); return; }
+      postSend(body, finish);
+    });
   }
 
-  function copyText() {
+  /* Способ 1: через адрес и <script> — работает без ограничений CORS */
+  function jsonp(body, cb) {
+    var name = "__grafikCb" + Date.now(), el = document.createElement("script"), done = false;
+    function end(ok) {
+      if (done) return; done = true; clearTimeout(t);
+      try { delete window[name]; } catch (e) { window[name] = undefined; }
+      if (el.parentNode) el.parentNode.removeChild(el);
+      cb(ok);
+    }
+    var t = setTimeout(function () { end(false); }, 12000);
+    window[name] = function (res) { end(!!(res && res.ok)); };
+    el.onerror = function () { end(false); };
+    el.async = true;
+    el.src = SCRIPT_URL + "?callback=" + name + "&data=" + encodeURIComponent(body) + "&t=" + Date.now();
+    document.body.appendChild(el);
+  }
+  /* Способ 2: обычный POST */
+  function postSend(body, cb) {
+    try {
+      fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: body, redirect: "follow" })
+        .then(function (r) { return r.text(); })
+        .then(function (t) { var j = null; try { j = JSON.parse(t); } catch (e) {} cb(!!(j && j.ok)); })
+        ["catch"](function () { cb(false); });
+    } catch (e) { cb(false); }
+  }
+
+  function copyText(after) {
     var ta = $("out"), msg = $("cmsg");
-    function ok() { msg.className = "msg ok"; msg.textContent = "Скопировано! Теперь вставь текст в личку организатору в Telegram."; }
-    function manual() { msg.className = "msg"; msg.textContent = "Текст выделен — нажми «Скопировать» в меню и отправь организатору."; }
+    function ok() { msg.className = "msg ok"; msg.textContent = "Скопировано! Открой чат с организатором, вставь текст и отправь."; if (after) after(true); }
+    function manual() { msg.className = "msg"; msg.textContent = "Текст выделен — нажми «Скопировать» в меню, потом открой Telegram."; if (after) after(false); }
     function legacy() {
       try {
         ta.removeAttribute("readonly"); ta.focus(); ta.select(); ta.setSelectionRange(0, ta.value.length);
@@ -361,9 +388,19 @@ var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxORMQAd6Msa96c_iDOQlH
       else legacy();
     } catch (e) { legacy(); }
   }
-  function shareTg() {
-    var text = $("out").value || textReport();
-    window.location.href = "https://t.me/share/url?url=" + encodeURIComponent("График на декабрь") + "&text=" + encodeURIComponent("\n" + text);
+  function openTg() {
+    if (!$("out").value) $("out").value = textReport();
+    copyText(function (copied) {
+      if (!copied) return;
+      $("cmsg").textContent = "Скопировано! Сейчас откроется Telegram — вставь текст в чат и отправь.";
+      setTimeout(function () { window.location.href = TG; }, 900);
+    });
+  }
+  function tgFromMain() {
+    if ($("tgMain").disabled) return;
+    hideResults();
+    showManual(false);
+    openTg();
   }
 
   /* время для «своих часов»: 12:00 … 20:00 с шагом 30 минут */
@@ -396,8 +433,9 @@ var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxORMQAd6Msa96c_iDOQlH
     $(id).addEventListener("change", readOpt); $(id).addEventListener("input", readOpt);
   });
   $("send").addEventListener("click", send);
-  $("copy").addEventListener("click", copyText);
-  $("tg").addEventListener("click", shareTg);
+  $("copy").addEventListener("click", function () { copyText(); });
+  $("tg").addEventListener("click", openTg);
+  $("tgMain").addEventListener("click", tgFromMain);
 
   load();
   $("name").value = st.name;
